@@ -1,13 +1,11 @@
-# pip install qrcode[pil]
-# add functionality to store up to 3 qrcodes, one for each colour channel
-# triple channel functionality could support memory overflow
-# odd ending = white, even = white
-# currently only supports rgb images
-import qrcode 
+import qrcode
 from PIL import Image
 import numpy as np
 import os.path
 import sys
+
+# encodes by least significant bit (x % 2 == 1, white; x % 2 == 0, black)
+# currently only supports rgb images
 
 class Encoder:
     default = "default.png"
@@ -58,6 +56,8 @@ class Encoder:
         except Exception as e:
             raise ValueError(e)
 
+        qr.show()
+
         return qr
 
     def _validate_size(self, qr):
@@ -85,10 +85,7 @@ class Encoder:
 
         return tuple(pix)
 
-    def encode(self, data):
-        img_data = np.array(self.img)
-        qr = np.array(self._validate_size(self.fetch_qr(data)))
-
+    def _encode_dim(self, qr, img_data):
         # top row encodes size of qr code
         # only 1 val needed as qr codes are always square
         top = self._convert_bin(qr.shape[0])
@@ -105,8 +102,21 @@ class Encoder:
         img_top.putdata(new_top)
         self.img.paste(img_top, (0, 0))
 
-        # encodes qr code, topleft=(0, 0)
+    def encode(self, data):
+        qr = np.array(self._validate_size(self.fetch_qr(data)))
+        img_data = np.array(self.img)
+        self._encode_dim(qr, img_data)
 
+        # encodes qr code, topleft=(0,0)
+        qr_img = np.array(self.img.crop((0, 0, qr.shape[0], qr.shape[1])))
+        for y in range(qr_img.shape[0]):
+            for x in range(qr_img.shape[1]):
+                qr_img[y, x] = self._encode_pix(qr[y, x], qr_img[y, x])
+        #qr_img = np.apply_along_axis(self._encode_dim, 2, np.reshape(qr, (list(qr.shape) + [1]), qr_img))
+        #qr_img = np.apply_over_axes(self._encode_dim, np.reshape(qr, (list(qr.shape) + [1]), qr_img), [1, 3])
+
+        qr_cover = Image.fromarray(qr_img[1:])
+        self.img.paste(qr_cover, (0, 1))
         self.img.save(f"{self._name}-hidden.png")
 
         return self.img, f"{self._name}-hidden.png"
@@ -149,13 +159,19 @@ class Decoder:
         self._init_img()
 
         # scrapes top line of pixels form input, converts to binary from least significant bit to find dimensions of qr code
-        qr_dim = self._convert_dec(list(map(self._decode_pix, np.reshape(np.array(img.crop((0, 0, img.size[0], 1))), (img.size[0], 3)))))
-
-        # gets qr code segment from image based on dimensions from above
+        qr_dim = self._convert_dec(list(map(self._decode_pix, np.reshape(np.array(self.img.crop((0, 0, self.img.size[0], 1))), (self.img.size[0], 3)))))
         
+        # get qr code, and parse for lsb
+        qr_raw = np.insert(np.array(self.img.crop((0, 0, qr_dim, qr_dim)))[1:], 0, np.ones((1, qr_dim, 3)), 0)
+        qr_img = np.apply_along_axis(self._decode_pix, 2, qr_raw)
+        qr = Image.fromarray(qr_img.astype('uint8'), "1")
+        qr.show()
 
+def test_qr():
+    e = Encoder()
+    d = Decoder()
+    name = e.encode("http://www.google.com")[1]
+    d.decode(name)
 
-e = Encoder()
-d = Decoder()
-name = e.encode("http://www.google.com")[1]
-d.decode(name)
+if __name__ == "__main__":
+    test_qr()
