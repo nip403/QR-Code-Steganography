@@ -11,3 +11,4 @@ Image Steganography using QR-codes encoded with LSB in red pixel channel written
 - add functionality to store up to 3 qrcodes/support memory overflow 
 - add support for b&w images
 - add support for alpha channels
+- github pages (transcribe to js)
