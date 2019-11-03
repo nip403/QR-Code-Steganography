@@ -1,6 +1,7 @@
-# Steganography-QR
+# Steganography-QR (broken)
 Image Steganography using QR-codes written in Python 3.7
 
 # Requirements
-- qrcode module (`pip install qrcode[pil]`)
-- Pillow module (`pip install pillow`)
+- qrcode (`pip install qrcode[pil]`)
+- Pillow (`pip install pillow`)
+- Numpy (`pip install numpy`)
