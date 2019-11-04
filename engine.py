@@ -180,7 +180,7 @@ class Decoder:
         # get qr code, and parse for lsb
         qr_raw = np.insert(np.array(self.img.crop((0, 0, qr_dim, qr_dim)))[1:], 0, np.ones((1, qr_dim, 3)), 0)
         qr_img = np.apply_along_axis(self._decode_pix, 2, qr_raw)
-        print(qr_img, qr_img.shape)
+
         #NOTE: fix this for 1 bit numbers (mode="1")
         qr = Image.fromarray(qr_img.astype("uint8"), mode="L")
 
@@ -188,6 +188,7 @@ class Decoder:
             qr.show()
 
         return qr
+
 
 def test_qr():
     e = Encoder()
