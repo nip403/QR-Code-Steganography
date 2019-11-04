@@ -14,5 +14,5 @@ Image Steganography using QR-codes encoded with LSB in red pixel channel written
 - github pages (transcribe to js)
 - fix whitespacing and comments
 
-# Most useless error message of the year award
+### Most useless error message of the year award
 `"could be decompression bomb DOS attack."`
