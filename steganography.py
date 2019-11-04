@@ -4,10 +4,8 @@ def main():
     e = Encoder()
     d = Decoder()
 
-    e.encode("this is some text.")
-    res = d.decode()
-
-    #res.show()
+    img, name = e.encode("this is some text.")
+    d.decode(name, show=True)
 
 if __name__ == "__main__":
     main()
