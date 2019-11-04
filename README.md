@@ -12,3 +12,4 @@ Image Steganography using QR-codes encoded with LSB in red pixel channel written
 - add support for b&w images
 - add support for alpha channels
 - github pages (transcribe to js)
+- fix whitespacing and comments
