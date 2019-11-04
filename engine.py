@@ -42,7 +42,7 @@ class Encoder:
         except:
             raise FileNotFoundError(f"'{self._name+self._ext}' was not found in {sys.path}.\nPlease check if the file exists.")
 
-    def fetch_qr(self, data):
+    def fetch_qr(self, data, show=False):
         try:
             _qr = qrcode.QRCode(
                 box_size=1,
@@ -56,7 +56,8 @@ class Encoder:
         except Exception as e:
             raise ValueError(e)
 
-        qr.show()
+        if show:
+            qr.show()
 
         return qr
 
@@ -102,8 +103,11 @@ class Encoder:
         img_top.putdata(new_top)
         self.img.paste(img_top, (0, 0))
 
-    def encode(self, data):
-        qr = np.array(self._validate_size(self.fetch_qr(data)))
+    def encode(self, data, show_input=False, show_qr=False, show_result=False):
+        if show_input:
+            self.img.show()
+
+        qr = np.array(self._validate_size(self.fetch_qr(data, show=show_qr)))
         img_data = np.array(self.img)
         self._encode_dim(qr, img_data)
 
@@ -121,7 +125,9 @@ class Encoder:
         qr_cover = Image.fromarray(qr_img[1:])
         self.img.paste(qr_cover, (0, 1))
         self.img.save(f"{self._name}-hidden.png")
-        self.img.show()#
+
+        if show_result:
+            self.img.show()
 
         return self.img, f"{self._name}-hidden.png"
 
@@ -161,7 +167,7 @@ class Decoder:
 
         return out
 
-    def decode(self, img=None):
+    def decode(self, img=None, show=False):
         # initialisations
         self.img = img
         self._init_file_info()
@@ -177,13 +183,17 @@ class Decoder:
         print(qr_img, qr_img.shape)
         #NOTE: fix this for 1 bit numbers (mode="1")
         qr = Image.fromarray(qr_img.astype("uint8"), mode="L")
-        qr.show()
+
+        if show:
+            qr.show()
+
+        return qr
 
 def test_qr():
     e = Encoder()
     d = Decoder()
-    name = e.encode("http://www.google.com")[1]
-    d.decode(name)
+    image, filename = e.encode("http://www.google.com")[1]
+    qr = d.decode(name, show=True)
 
 if __name__ == "__main__":
     test_qr()
