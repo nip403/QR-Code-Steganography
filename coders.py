@@ -1,4 +1,4 @@
-import qrcode
+import qrcode 
 from PIL import Image
 import numpy as np
 import os.path
@@ -107,8 +107,11 @@ class Encoder:
         img_data = np.array(self.img)
         self._encode_dim(qr, img_data)
 
+
+        ##### NOTE: use image.eval
+
         # encodes qr code, topleft=(0,0)
-        qr_img = np.array(self.img.crop((0, 0, qr.shape[0], qr.shape[1])))
+        qr_img = np.array(self.img.crop((0, 0, *qr.shape)))
         for y in range(qr_img.shape[0]):
             for x in range(qr_img.shape[1]):
                 qr_img[y, x] = self._encode_pix(qr[y, x], qr_img[y, x])
@@ -118,8 +121,11 @@ class Encoder:
         qr_cover = Image.fromarray(qr_img[1:])
         self.img.paste(qr_cover, (0, 1))
         self.img.save(f"{self._name}-hidden.png")
+        self.img.show()#
 
         return self.img, f"{self._name}-hidden.png"
+
+##### NOTE: np.array % 2 returns everything i needdddddd, replace existing method soon
 
 class Decoder:
     default = "default-hidden.png"
@@ -135,9 +141,12 @@ class Decoder:
             self.img = Image.open(self.img)
         except:
             raise FileNotFoundError(f"'{self._name+self._ext}' was not found in {sys.path}.\nPlease check if the file exists.")
+ 
+    def _decode_pix_to_bin(self, pix):
+        return pix[0] % 2
 
     def _decode_pix(self, pix):
-        return pix[0] % 2
+        return (pix[0] % 2) * 255
 
     def _convert_dec(self, arr):
         b = int("".join(map(str, arr)))
@@ -159,12 +168,15 @@ class Decoder:
         self._init_img()
 
         # scrapes top line of pixels form input, converts to binary from least significant bit to find dimensions of qr code
-        qr_dim = self._convert_dec(list(map(self._decode_pix, np.reshape(np.array(self.img.crop((0, 0, self.img.size[0], 1))), (self.img.size[0], 3)))))
-        
+        qr_dim = self._convert_dec(list(map(self._decode_pix_to_bin, np.reshape(np.array(self.img.crop((0, 0, self.img.size[0], 1))), (self.img.size[0], 3)))))
+        ###NOTE: delete above function when below is fixed
+
         # get qr code, and parse for lsb
         qr_raw = np.insert(np.array(self.img.crop((0, 0, qr_dim, qr_dim)))[1:], 0, np.ones((1, qr_dim, 3)), 0)
         qr_img = np.apply_along_axis(self._decode_pix, 2, qr_raw)
-        qr = Image.fromarray(qr_img.astype('uint8'), "1")
+        print(qr_img, qr_img.shape)
+        #NOTE: fix this for 1 bit numbers (mode="1")
+        qr = Image.fromarray(qr_img.astype("uint8"), mode="L")
         qr.show()
 
 def test_qr():
