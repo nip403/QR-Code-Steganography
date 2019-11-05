@@ -111,7 +111,6 @@ class Encoder:
         img_data = np.array(self.img)
         self._encode_dim(qr, img_data)
 
-
         ##### NOTE: use image.eval
 
         # encodes qr code, topleft=(0,0)
@@ -189,12 +188,11 @@ class Decoder:
 
         return qr
 
-
 def test_qr():
     e = Encoder()
     d = Decoder()
-    image, filename = e.encode("http://www.google.com")[1]
-    qr = d.decode(name, show=True)
+    image, filename = e.encode("http://www.google.com")
+    qr = d.decode(filename, show=True)
 
 if __name__ == "__main__":
     test_qr()
