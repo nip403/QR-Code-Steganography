@@ -89,6 +89,8 @@ class Encoder:
     def _encode_dim(self, qr, img_data):
         # top row encodes size of qr code
         # only 1 val needed as qr codes are always square
+
+        #NOTE: modify function (see below note) to encode_pix(a, b)
         top = self._convert_bin(qr.shape[0])
         top = [0]*(img_data.shape[1] - len(top)) + top
 
@@ -111,7 +113,7 @@ class Encoder:
         img_data = np.array(self.img)
         self._encode_dim(qr, img_data)
 
-        ##### NOTE: use image.eval
+        #NOTE: (see above note) modify encoding process to: func(a, b)
 
         # encodes qr code, topleft=(0,0)
         qr_img = np.array(self.img.crop((0, 0, *qr.shape)))
@@ -193,6 +195,16 @@ def test_qr():
     d = Decoder()
     image, filename = e.encode("http://www.google.com")
     qr = d.decode(filename, show=True)
-
+    
 if __name__ == "__main__":
     test_qr()
+    
+    
+    
+"""
+180
+np.reshape(np.split(a, [0, 1], axis=2)[1], (10,2))
+
+159
+print(int("".join(np.concatenate(arr).ravel().astype(int).astype(str))))
+"""
