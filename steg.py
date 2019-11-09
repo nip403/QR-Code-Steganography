@@ -49,6 +49,9 @@ ADDENDUM:
 def parse_args(*args):
     parser = get_parser()
     args = parser.parse_args()
+
+    if args.data is None and args.img == "./default.png":
+        args.img = None
     
     if args.data is None:
         return 0, args.img, args.dest
