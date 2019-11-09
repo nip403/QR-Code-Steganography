@@ -10,6 +10,7 @@ import sys
 #####NOTE: scale produced qr codes up to 500 px minimum
 ######NOTE::::: fix compatibility for jpg imgs
 ###NOTE: add compatibility for other image formats
+###NOTE: add extra option to rename file + in steg.py
 
 
 class Encoder:
