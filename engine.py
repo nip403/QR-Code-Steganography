@@ -7,13 +7,19 @@ import sys
 # encodes by least significant bit (x % 2 == 1, white; x % 2 == 0, black)
 # currently only supports rgb images
 
+#####NOTE: scale produced qr codes up to 500 px minimum
+######NOTE::::: fix compatibility for jpg imgs
+###NOTE: add compatibility for other image formats
+
+
 class Encoder:
     default = "default.png"
+    default_dir = "."
     _length_data_line = 0
 
     def __init__(self, img=None):
-        self._init_file_info(img)
-        self.img = img if img else self.default
+        self.img = img if (img is not None or not os.path.isfile(img)) else self.default
+        self._init_file_info()
         self._init_img()
 
     @property
@@ -23,16 +29,17 @@ class Encoder:
     @image.setter
     def image(self, new):
         self.img = new
-        self._init_file_info(self.img)
+        self._init_file_info()
         self._init_img()
 
     @image.deleter
     def image(self):
         self.img = self.default
 
-    def _init_file_info(self, img):
+    def _init_file_info(self):
         try:
-            self._name, self._ext = os.path.splitext(img if img else self.default)
+            self.img = self.default if self.img is None else self.img
+            self._name, self._ext = os.path.splitext(self.img)
         except:
             raise Exception("Path invalid.")
 
@@ -89,8 +96,6 @@ class Encoder:
     def _encode_dim(self, qr, img_data):
         # top row encodes size of qr code
         # only 1 val needed as qr codes are always square
-
-        #NOTE: modify function (see below note) to encode_pix(a, b)
         top = self._convert_bin(qr.shape[0])
         top = [0]*(img_data.shape[1] - len(top)) + top
 
@@ -105,15 +110,16 @@ class Encoder:
         img_top.putdata(new_top)
         self.img.paste(img_top, (0, 0))
 
-    def encode(self, data, show_input=False, show_qr=False, show_result=False):
+    def encode(self, data, dest_dir=".", show_input=False, show_qr=False, show_result=False):
         if show_input:
             self.img.show()
+
+        if not os.path.isdir(dest_dir):
+            dest_dir = self.default_dir
 
         qr = np.array(self._validate_size(self.fetch_qr(data, show=show_qr)))
         img_data = np.array(self.img)
         self._encode_dim(qr, img_data)
-
-        #NOTE: (see above note) modify encoding process to: func(a, b)
 
         # encodes qr code, topleft=(0,0)
         qr_img = np.array(self.img.crop((0, 0, *qr.shape)))
@@ -125,21 +131,42 @@ class Encoder:
 
         qr_cover = Image.fromarray(qr_img[1:])
         self.img.paste(qr_cover, (0, 1))
-        self.img.save(f"{self._name}-hidden.png")
+        self.img.save(f"{dest_dir}\{self._name}-hidden{self._ext}")
 
         if show_result:
             self.img.show()
 
-        return self.img, f"{self._name}-hidden.png"
+        return self.img, f"{dest_dir}\{self._name}-hidden{self._ext}"
 
 ##### NOTE: np.array % 2 returns everything i needdddddd, replace existing method soon
 
 class Decoder:
     default = "default-hidden.png"
+    default_dir = "."
+
+    def __init__(self, img=None):
+        self.img = img if (img is not None or not os.path.isfile(img)) else self.default
+        self._init_file_info()
+        self._init_img()
+
+    @property
+    def image(self):
+        return self.img
+
+    @image.setter
+    def image(self, new):
+        self.img = new
+        self._init_file_info()
+        self._init_img()
+
+    @image.deleter
+    def image(self):
+        self.img = self.default
 
     def _init_file_info(self):
         try:
-            self._name, self._ext = os.path.splitext(self.img if self.img else self.default)
+            self.img = self.default if self.img is None else self.img
+            self._name, self._ext = os.path.splitext(self.img)
         except:
             raise Exception("Path invalid.")
 
@@ -168,43 +195,36 @@ class Decoder:
 
         return out
 
-    def decode(self, img=None, show=False):
-        # initialisations
-        self.img = img
-        self._init_file_info()
-        self._init_img()
+    def decode(self, dest_dir=".", show=False):
+        if not os.path.isdir(dest_dir):
+            dest_dir = self.default_dir
 
         # scrapes top line of pixels form input, converts to binary from least significant bit to find dimensions of qr code
         qr_dim = self._convert_dec(list(map(self._decode_pix_to_bin, np.reshape(np.array(self.img.crop((0, 0, self.img.size[0], 1))), (self.img.size[0], 3)))))
         ###NOTE: delete above function when below is fixed
+        ###NOTE: add check to see is qrdim > img.size to avoid dos attack error
+
+        print(qr_dim)
 
         # get qr code, and parse for lsb
         qr_raw = np.insert(np.array(self.img.crop((0, 0, qr_dim, qr_dim)))[1:], 0, np.ones((1, qr_dim, 3)), 0)
         qr_img = np.apply_along_axis(self._decode_pix, 2, qr_raw)
+        #NOTE:::::NOTE!!!! - image not saving properly
 
         #NOTE: fix this for 1 bit numbers (mode="1")
         qr = Image.fromarray(qr_img.astype("uint8"), mode="L")
+        qr.save(f"{dest_dir}\{self._name}-qr{self._ext}")
 
         if show:
             qr.show()
 
-        return qr
+        return qr, f"{dest_dir}\{self._name}-qr{self._ext}"
 
 def test_qr():
     e = Encoder()
-    d = Decoder()
     image, filename = e.encode("http://www.google.com")
-    qr = d.decode(filename, show=True)
-    
+    d = Decoder(filename)
+    qr = d.decode(show=True)[0]
+
 if __name__ == "__main__":
     test_qr()
-    
-    
-    
-"""
-180
-np.reshape(np.split(a, [0, 1], axis=2)[1], (10,2))
-
-159
-print(int("".join(np.concatenate(arr).ravel().astype(int).astype(str))))
-"""
