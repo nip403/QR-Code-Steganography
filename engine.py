@@ -18,7 +18,7 @@ class Encoder:
     _length_data_line = 0
 
     def __init__(self, img=None):
-        self.img = img if (img is not None or not os.path.isfile(img)) else self.default
+        self.img = img if (img is not None and not os.path.isfile(img)) else self.default
         self._init_file_info()
         self._init_img()
 
@@ -145,7 +145,7 @@ class Decoder:
     default_dir = "."
 
     def __init__(self, img=None):
-        self.img = img if (img is not None or not os.path.isfile(img)) else self.default
+        self.img = img if (img is not None and not os.path.isfile(img)) else self.default
         self._init_file_info()
         self._init_img()
 
@@ -207,7 +207,11 @@ class Decoder:
         print(qr_dim)
 
         # get qr code, and parse for lsb
-        qr_raw = np.insert(np.array(self.img.crop((0, 0, qr_dim, qr_dim)))[1:], 0, np.ones((1, qr_dim, 3)), 0)
+        try:
+            qr_raw = np.insert(np.array(self.img.crop((0, 0, qr_dim, qr_dim)))[1:], 0, np.ones((1, qr_dim, 3)), 0)
+        except:
+            raise ValueError("Unformatted file, retry with encoded file.")
+
         qr_img = np.apply_along_axis(self._decode_pix, 2, qr_raw)
         #NOTE:::::NOTE!!!! - image not saving properly
 
