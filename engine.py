@@ -4,9 +4,7 @@ import numpy as np
 import os.path
 import sys
 
-# NOTE: fix compatibility for jpg imgs
 # NOTE: add compatibility for other image formats
-# NOTE: add extra option to rename file + in steg.py
 
 class Encoder:
     default = "default.png"
@@ -106,7 +104,7 @@ class Encoder:
         img_top.putdata([tuple(i) for i in new_top])
         self.img.paste(img_top, (0, 0))
 
-    def encode(self, data, dest_dir=".", show_input=False, show_qr=False, show_result=False):
+    def encode(self, data, dest_dir=".", save=None, show_input=False, show_qr=False, show_result=False):
         if show_input:
             self.img.show()
 
@@ -121,13 +119,14 @@ class Encoder:
         qr_img = np.array(self.img.crop((0, 0, *qr.shape)))
         qr_cover = Image.fromarray(np.concatenate((np.reshape(np.vectorize(self._encode_pix)(qr, qr_img[:, :, 0]), (*qr.shape, 1)), qr_img[:, :, 1:]), axis=2))
 
+        full = f"{dest_dir}\{self._name if save is None else save}{'-hidden' * bool(save)}{self._ext}"
         self.img.paste(qr_cover, (0, 1))
-        self.img.save(f"{dest_dir}\{self._name}-hidden{self._ext}")
+        self.img.save(full)
 
         if show_result:
             self.img.show()
 
-        return self.img, f"{dest_dir}\{self._name}-hidden{self._ext}"
+        return self.img, full
 
 class Decoder:
     default = "default-hidden.png"
@@ -166,7 +165,7 @@ class Decoder:
         except:
             raise FileNotFoundError(f"'{self._name+self._ext}' was not found in {sys.path}.\nPlease check if the file exists.")
 
-    def decode(self, dest_dir=".", show=False):
+    def decode(self, dest_dir=".", save=None, show=False):
         if not os.path.isdir(dest_dir):
             dest_dir = self.default_dir
 
@@ -188,12 +187,13 @@ class Decoder:
         if qr.size[0] < 500:
             qr = qr.resize(list(map(lambda i: int(np.ceil(self._min_out_size/i)) * i, qr.size)))
 
-        qr.save(f"{dest_dir}\{self._name}-qr{self._ext}")
+        full = f"{dest_dir}\{self._name if save is None else save}{'-qr' * bool(save)}{self._ext}"
+        qr.save(full)
 
         if show:
             qr.show()
 
-        return qr, f"{dest_dir}\{self._name}-qr{self._ext}"
+        return qr, full
 
 def test_qr():
     e = Encoder()
