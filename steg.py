@@ -8,7 +8,7 @@ import sys
 def get_parser():
     parser = ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
-        description="py steg.py [options]",
+        description="IMPORTANT: currently, only png images are supported",
         epilog="""
 ADDENDUM: 
     - if no image is provided for the encoding process a default image will be used
@@ -16,8 +16,7 @@ ADDENDUM:
     - encoded images will be saved as: "[filename]-hidden.[ext]"
     - decoded images will be saved as: "[filename]-revealed.[ext]"
     - program will encode/decode depending on whether data flag is provided
-    """
-    )
+    """)
 
     parser.add_argument(
         "-d",
