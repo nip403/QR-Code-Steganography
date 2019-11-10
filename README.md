@@ -1,6 +1,8 @@
 # Steganography-QR
 Image Steganography using QR-codes encoded with LSB in red pixel channel written in Python 3.7.
 
+Program encodes data in a qrcode first before hiding it in the source image.
+
 # steg.py usage
 ```
 usage: steg.py [-h] [-d DATA] [--image FILE] [--dest FILE]
