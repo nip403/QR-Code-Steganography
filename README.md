@@ -7,7 +7,7 @@ Program encodes data in a qrcode first before hiding it in the source image.
 ```
 usage: steg.py [-h] [-d DATA] [--image FILE] [--dest FILE]
 
-py steg.py [options]
+IMPORTANT: currently, only png images are supported
 
 optional arguments:
   -h, --help            show this help message and exit
