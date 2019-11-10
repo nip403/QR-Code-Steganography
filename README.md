@@ -3,7 +3,7 @@ Image Steganography using QR-codes encoded with LSB in red pixel channel written
 
 # steg.py usage
 ```
-usage: stegshell.py [-h] [-d DATA] [--image FILE] [--dest FILE]
+usage: steg.py [-h] [-d DATA] [--image FILE] [--dest FILE]
 
 py steg.py [options]
 
