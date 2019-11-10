@@ -30,12 +30,11 @@ ADDENDUM:
 - Numpy (`pip install numpy`)
 
 # Todo
-- add improvements per mention in each comment labelled with "NOTE:"
+- improve "engine.py" @ NOTEs
 - add functionality to store up to 3 qrcodes/support memory overflow 
 - add support for b&w images
 - add support for alpha channels
 - github pages (transcribe to js)
-- fix whitespacing and comments
 
 ### Most useless error message of the year award
 `"could be decompression bomb DOS attack."`
