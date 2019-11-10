@@ -4,8 +4,6 @@ import numpy as np
 import os.path
 import sys
 
-# NOTE: add compatibility for other image formats
-
 class Encoder:
     default = "default.png"
     default_dir = "."
