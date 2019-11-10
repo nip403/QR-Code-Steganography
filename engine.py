@@ -4,9 +4,9 @@ import numpy as np
 import os.path
 import sys
 
-######NOTE::::: fix compatibility for jpg imgs
-###NOTE: add compatibility for other image formats
-###NOTE: add extra option to rename file + in steg.py
+# NOTE: fix compatibility for jpg imgs
+# NOTE: add compatibility for other image formats
+# NOTE: add extra option to rename file + in steg.py
 
 class Encoder:
     default = "default.png"
