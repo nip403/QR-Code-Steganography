@@ -37,6 +37,7 @@ ADDENDUM:
 - add support for b&w images
 - add support for alpha channels
 - github pages (transcribe to js)
+- add option for new filename in steg.py
 
 ### Most useless error message of the year award
 `"could be decompression bomb DOS attack."`
