@@ -194,10 +194,7 @@ class Decoder:
         return qr, full
 
 def test_qr():
-    e = Encoder()
-    image, filename = e.encode("http://www.google.com")
-    d = Decoder(filename)
-    qr = d.decode(show=True)[0]
+    Decoder(Encoder().encode("http://www.google.com")[1]).decode()
 
 if __name__ == "__main__":
     test_qr()
