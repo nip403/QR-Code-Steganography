@@ -115,14 +115,14 @@ class Encoder:
 
         # encodes qr code, topleft=(0,0)
         qr_img = np.array(self.img.crop((0, 0, *qr.shape)))
-        qr_cover = Image.fromarray(np.concatenate((np.reshape(np.vectorize(self._encode_pix)(qr, qr_img[:, :, 0]), (*qr.shape, 1)), qr_img[:, :, 1:]), axis=2))
-
-        full = f"{dest_dir}\{self._name if save is None else save}{'-hidden' * bool(save)}{self._ext}"
+        qr_cover = Image.fromarray(np.concatenate((np.vectorize(self._encode_pix)(qr, qr_img[..., 0])[..., np.newaxis], qr_img[..., 1:]), axis=2)[1:].astype("uint8"))
+        
+        full = f"{dest_dir}\{self._name if save is None else save}{'-hidden' * (1-bool(save))}{self._ext}"
         self.img.paste(qr_cover, (0, 1))
         self.img.save(full)
 
         if show_result:
-            self.img.show()
+            self.img.crop.show()
 
         return self.img, full
 
@@ -185,7 +185,7 @@ class Decoder:
         if qr.size[0] < 500:
             qr = qr.resize(list(map(lambda i: int(np.ceil(self._min_out_size/i)) * i, qr.size)))
 
-        full = f"{dest_dir}\{self._name if save is None else save}{'-qr' * bool(save)}{self._ext}"
+        full = f"{dest_dir}\{self._name if save is None else save}{'-qr' * (1-bool(save))}{self._ext}"
         qr.save(full)
 
         if show:
@@ -194,7 +194,7 @@ class Decoder:
         return qr, full
 
 def test_qr():
-    Decoder(Encoder().encode("http://www.google.com")[1]).decode()
+    Decoder(Encoder().encode("https://duckduckgo.com/")[1]).decode()[0].show()
 
 if __name__ == "__main__":
     test_qr()
