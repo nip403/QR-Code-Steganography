@@ -1,5 +1,5 @@
 # Steganography-QR
-Image Steganography using QR-codes encoded with LSB in red pixel channel written in Python 3.7
+Image Steganography using QR-codes encoded with LSB in red pixel channel written in Python 3.7.
 
 # steg.py usage
 ```
